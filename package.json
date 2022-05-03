@@ -2,7 +2,11 @@
   "name": "emed-file-uploader",
   "version": "1.0.0",
   "description": "Testing instructions:",
+  "source": "public/index.html",
   "main": "index.js",
+  "targets": {
+    "main": false
+  },
   "scripts": {
     "test": "jest",
     "dev": "parcel public/index.html",
