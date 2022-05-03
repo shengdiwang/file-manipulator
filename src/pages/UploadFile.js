@@ -98,10 +98,7 @@ function UploadFile() {
           <div id="error-msg">Requires at least one file to be selected</div>
         ) : null}
         {isFileNameInvalid ? (
-          <div id="error-msg">
-            Requires file names to contain only &lsquo;-&rsquo;,
-            &lsquo;_&rsquo;, and alphanumerics
-          </div>
+          <div id="error-msg">Requires a valid file name or empty name</div>
         ) : null}
         <button
           id="submitFile"
