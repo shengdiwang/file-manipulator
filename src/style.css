@@ -1,0 +1,17 @@
+#error-msg {
+  color: red;
+}
+
+.dropzone {
+  border: 1px solid black;
+  color: gray;
+  text-align: center;
+}
+
+.dropzone-aside-accepted {
+  color: black;
+}
+
+.dropzone-aside-rejected {
+  color: red;
+}
