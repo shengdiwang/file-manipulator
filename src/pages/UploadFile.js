@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useDropzone } from "react-dropzone";
+import { validateFileName } from "./Utils";
 
 function UploadFile() {
   const [selectedFile, setSelectedFile] = useState();
@@ -18,12 +19,10 @@ function UploadFile() {
       onDrop,
     });
 
-  // TODO: Wrap into React memo hook to reduce computation.
   const acceptedFileItems = acceptedFiles.map((file) => (
     <li key={file.path}>Accepted item: {file.path}</li>
   ));
 
-  // TODO: Wrap into React memo hook to reduce computation.
   const fileRejectionItems = fileRejections.map(({ file, errors }) => {
     return (
       <li key={file.path}>
@@ -51,16 +50,13 @@ function UploadFile() {
     }
   }
 
-  // TODO: Consider adding ErrorBoundary to submit and uploadfile.
   function handleSubmission(e) {
     e.preventDefault();
 
     // Checks if at least 1 file is selected.
     if (isFileSelected) {
       let customFileName = document.getElementById("fileName").value;
-      // Valids custom file name provided.
-      // TODO: Refactor the logic into a new function, with explicit name such as validateFileName().
-      if (customFileName === "" || /^[a-zA-Z0-9-_]+$/.test(customFileName)) {
+      if (validateFileName(customFileName)) {
         navigate("/echo", {
           state: {
             fileName: customFileName,
@@ -76,18 +72,14 @@ function UploadFile() {
   }
 
   return (
-    <div>
-      <section className="container">
+    <div className="mt-3">
+      <section>
         <div {...getRootProps({ className: "dropzone" })}>
           <input {...getInputProps()} />
-          <p>
-            <br />
-            <br />
+          <p className="my-5">
             Drag and drop a text file here, or click to select one
             <br />
             <em>(Only one *.txt file will be accepted)</em>
-            <br />
-            <br />
           </p>
         </div>
         <aside className="dropzone-aside-accepted">
@@ -97,14 +89,11 @@ function UploadFile() {
           {fileRejections ? <ul>{fileRejectionItems}</ul> : null}
         </aside>
       </section>
-      <br />
       <label htmlFor="fileName">
-        Provide a custom file name <em>(Optional)</em>:{" "}
+        Provide a custom file name <em>(Optional)</em>:&nbsp;{" "}
       </label>
       <input id="fileName" name="fileName" type="text"></input>
-      <br />
-      <br />
-      <div>
+      <div className="mt-2">
         {isSubmitFailed ? (
           <div id="error-msg">Requires at least one file to be selected</div>
         ) : null}

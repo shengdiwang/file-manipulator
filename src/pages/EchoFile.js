@@ -1,52 +1,44 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
+import { transposeAndCountLines } from "./Utils";
 
 function EchoFile() {
   const location = useLocation();
   const navigate = useNavigate();
-  // TODO: Try boolean for binary status.
-  const [status, setStatus] = useState("processing");
   const [lineCount, setLineCount] = useState(0);
-  const customFileName = location.state.fileName;
-  const selectedFile = location.state.file;
+  const [customFileName] = useState(location.state.fileName);
+  const [selectedFile] = useState(location.state.file);
 
-  // Processes selected file once; tracks using 'status' state.
-  // TODO: try useEffect for this.
-  if (status === "processing") {
+  // Processes the selected file once on load.
+  useEffect(() => {
+    processFile(selectedFile);
+  }, []);
+
+  // Asynchronously reads and processes the selected file.
+  function processFile(file) {
     const reader = new FileReader();
 
-    reader.onload = function () {
-      // Transposes the original file.
-      const dataFragments = reader.result.split("\n");
-      // TODO: Try util functions, and write unit tests.
-      setLineCount(dataFragments.length);
-      for (let i = 1; i < dataFragments.length; i = i + 2) {
-        const temp = dataFragments[i - 1];
-        dataFragments[i - 1] = dataFragments[i];
-        dataFragments[i] = temp;
-      }
-      const transposedString = dataFragments.join("\n");
+    reader.onload = async function () {
+      const [lineCount, transposedString] = await transposeAndCountLines(
+        reader.result
+      );
+      setLineCount(lineCount);
 
       // Creates the transposed text file for download.
-      const downloadLink = document.createElement("a");
-      downloadLink.className = "btn btn-primary";
-      // TODO: Combine with the logic below?
-      downloadLink.download = customFileName || selectedFile.name;
-      downloadLink.innerHTML = `Download Transposed '${
-        customFileName ? customFileName + ".txt" : selectedFile.name
-      }'`;
-      downloadLink.href =
-        "data:text/plain;charset=utf-8," + encodeURIComponent(transposedString);
-      document.getElementById("downloadTransposed").appendChild(downloadLink);
-
-      setStatus("processed");
+      const downloadLink = document.getElementById("downloadTransposed");
+      const downloadFileName = customFileName
+        ? customFileName + ".txt"
+        : file.name;
+      downloadLink.download = downloadFileName;
+      downloadLink.innerHTML = `Download Transposed '${downloadFileName}'`;
+      downloadLink.href += encodeURIComponent(transposedString);
     };
 
     reader.onerror = function () {
       console.log(reader.error);
     };
 
-    reader.readAsText(selectedFile);
+    reader.readAsText(file);
   }
 
   // Navgiates back to UploadFile to upload another file.
@@ -57,7 +49,7 @@ function EchoFile() {
   }
 
   return (
-    <div>
+    <div className="mt-3">
       <div>
         {selectedFile ? (
           <div>
@@ -78,11 +70,16 @@ function EchoFile() {
           <p>No files provided</p>
         )}
       </div>
-      <div id="downloadTransposed"></div>
-      <br></br>
+      <a
+        id="downloadTransposed"
+        className="btn btn-primary mr-2"
+        href="data:text/plain;charset=utf-8,"
+      >
+        {" "}
+      </a>
       <button
         id="uploadAnother"
-        className="btn btn-primary"
+        className="btn btn-primary mx-2"
         onClick={handleUploadAnother}
       >
         Upload Another File
